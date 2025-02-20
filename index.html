@@ -1,39 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style.css" />
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz App</title>
-  </head>
-  <body>
-    <div class="quiz-container" id="quiz">
-      <div class="quiz-header">
-        <h2 id="question">Question text</h2>
-        <ul>
-          <li>
-            <input type="radio" name="answer" id="a" class="answer">
-            <label for="a" id="a_text">Question</label>
-          </li>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="responsive.css">
+</head>
 
-          <li>
-            <input type="radio" name="answer" id="b" class="answer">
-            <label for="b" id="b_text">Question</label>
-          </li>
+<body>
+    <!-- container -->
+    <div class="container">
+        <!-- rules-container -->
+        <div id="start-rules">
+            <h2>Welcome to the Quiz</h2>
+            <h3>Rules: </h3>
+            <ul>
+                <li>Your quiz will last for a minute.</li>
+                <li>Your quiz will have infinte number of questions as we are fetching them from an api</li>
+                <li>You will be provided 10 marks for each correct answer</li>
+                <li>No negative marking</li>
+                <li>At the end of the game your score will be displayed.</li>
+            </ul>
+        </div>
+        <!-- start-quiz button -->
+        <div id="start-screen">
+            <button id="start-quiz">Start Quiz</button>
+        </div>
 
-          <li>
-            <input type="radio" name="answer" id="c" class="answer">
-            <label for="c" id="c_text">Question</label>
-          </li>
+        <!-- quiz-screen container -->
+        <div id="quiz-screen" class="hidden">
+            <h2 id="question"></h2>
+            <div class="answers-list"></div>
+            <div id="timer">Time left: 60 seconds</div>
+            <div id="score-display">Score: <span id="score">0</span></div>
+        </div>
 
-          <li>
-            <input type="radio" name="answer" id="d" class="answer">
-            <label for="d" id="d_text">Question</label>
-          </li>
-        </ul>
-      </div>
-      <button id="submit">Submit</button>
+        <!-- end-screen container -->
+        <div id="end-screen" class="hidden">
+            <div>
+                <h2 id="game-over">Game Over!</h2>
+                <p>Improve Your knowledge by playing it again and again.</p>
+                <!-- remarks -->
+                <h3>
+                    <p id="end-message"></p>
+                </h3>
+                <p id="final-score">0</p>
+            </div>
+
+            <!-- play-again button -->
+            <button id="play-again">Play Again</button>
+        </div>
     </div>
     <script src="action.js"></script>
-  </body>
+</body>
+
 </html>

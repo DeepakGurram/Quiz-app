@@ -1,98 +1,127 @@
-const quizData = [
-  {
-    question: "Which language runs in a web browser?",
-    a: "Java",
-    b: "C",
-    c: "Python",
-    d: "JavaScript",
-    correct: "d",
-  },
-  {
-    question: "What does CSS stand for?",
-    a: "Central Style Sheets",
-    b: "Cascading Style Sheets",
-    c: "Cascading Simple Sheets",
-    d: "Cars SUVs Sailboats",
-    correct: "b",
-  },
-  {
-    question: "What does HTML stand for?",
-    a: "Hypertext Markup Language",
-    b: "Hypertext Markdown Language",
-    c: "Hyperloop Machine Language",
-    d: "Helicopters Terminals Motorboats Lamborginis",
-    correct: "a",
-  },
-  {
-    question: "What year was JavaScript launched?",
-    a: "1996",
-    b: "1995",
-    c: "1994",
-    d: "none of the above",
-    correct: "b",
-  },
-];
-
-const quiz = document.getElementById("quiz");
-const answerEls = document.querySelectorAll(".answer");
-const questionEl = document.getElementById("question");
-const a_text = document.getElementById("a_text");
-const b_text = document.getElementById("b_text");
-const c_text = document.getElementById("c_text");
-const d_text = document.getElementById("d_text");
-const submitBtn = document.getElementById("submit");
-
-let currentQuiz = 0;
+//setting score to 0
 let score = 0;
+let startQuiz = document.getElementById("start-quiz");
+let playAgain = document.getElementById("play-again");
 
-loadQuiz();
-
-function loadQuiz() {
-  deselectAnswers();
-
-  const currentQuizData = quizData[currentQuiz];
-
-  questionEl.innerText = currentQuizData.question;
-  a_text.innerText = currentQuizData.a;
-  b_text.innerText = currentQuizData.b;
-  c_text.innerText = currentQuizData.c;
-  d_text.innerText = currentQuizData.d;
+//async function to fetch api
+async function getQuestions() {
+  let question = await fetch("https://opentdb.com/api.php?amount=1");
+  let data = await question.json();
+  console.log(data);
+  // console.log(data.response_code);
+  try {
+    showQuestion(data.results[0]);
+  } catch (error) {
+    document.getElementById("question").innerHTML =
+      "Error fetching question.Please try again";
+  }
 }
 
-function deselectAnswers() {
-  answerEls.forEach((answerEl) => (answerEl.checked = false));
-}
+getQuestions();
 
-function getSelected() {
-  let answer;
+//function to display questions from api
+function showQuestion(data) {
+  // console.log(data);
+  console.log(data.correct_answer);
 
-  answerEls.forEach((answerEl) => {
-    if (answerEl.checked) {
-      answer = answerEl.id;
+  question.innerHTML = data.question;
+  const { correct_answer, incorrect_answers } = data;
+  const answer = [correct_answer, ...incorrect_answers];
+  // console.log(answer);
+
+  answer.sort(() => Math.random() - 0.5);
+  // console.log(answer);
+
+  let answersList = document.querySelector(".answers-list");
+  answersList.innerHTML = `
+    ${answer.map((ans) => `<button class="btn">${ans}</button>`).join(" ")} `;
+
+  answersList.querySelectorAll("button").forEach((element) => {
+    if (element.innerHTML !== correct_answer) {
+      element.addEventListener("click", () => {
+        element.style.backgroundColor = "#a42626";
+        setTimeout(() => {
+          getQuestions();
+        }, 500);
+      });
+    } else {
+      element.addEventListener("click", () => {
+        score += 10;
+        console.log("it is correct");
+        element.style.backgroundColor = "mediumseagreen";
+        setTimeout(() => {
+          getQuestions();
+          updateScore();
+        }, 500);
+      });
     }
   });
-
-  return answer;
 }
 
-submitBtn.addEventListener("click", () => {
-  const answer = getSelected();
+//function to run countdown
+function countDown(seconds) {
+  let counter = seconds;
 
-  if (answer) {
-    if (answer === quizData[currentQuiz].correct) {
-      score++;
+  let interval = setInterval(() => {
+    counter--;
+    document.getElementById(
+      "timer"
+    ).innerHTML = `Time left: ${counter} seconds`;
+
+    if (counter == 0) {
+      clearInterval(interval);
+      endQuiz();
     }
+  }, 1000);
+}
 
-    currentQuiz++;
+//function for correct answer
+function correctAnswer() {
+  score += 10;
+  console.log("it is correct");
+  getQuestions();
+  updateScore();
+}
 
-    if (currentQuiz < quizData.length) {
-      loadQuiz();
-    } else {
-      quiz.innerHTML = `
-                <h2>You answered ${score}/${quizData.length} questions correctly</h2>
+//function to update the score
+function updateScore() {
+  document.getElementById("score").innerHTML = score;
+}
 
-                <button onclick="location.reload()">Reload</button>
-            `;
-    }
+// function to display remarks
+function endQuiz() {
+  document.getElementById("quiz-screen").classList.remove("active");
+  document.getElementById("end-screen").classList.add("active");
+  let endMsg = document.getElementById("end-message");
+  let finalScore = document.getElementById("final-score");
+
+  if (score <= 20) {
+    endMsg.innerHTML = `<span style = "color: black">Remarks: </span> You played poor`;
+  } else if (score >= 20 && score <= 50) {
+    endMsg.innerHTML = `<span style = "color: black">Remarks: </span> You played good`;
+  } else {
+    endMsg.innerHTML = `<span style = "color: black">Remarks: </span> You played good`;
   }
+
+  finalScore.innerHTML = `<span style = "font-weight:900">Final score: </span> ${score}`;
+}
+
+//event listener to start the quiz
+startQuiz.addEventListener("click", () => {
+  countDown(60);
+  document.getElementById("start-rules").style.display = "none";
+  document.getElementById("start-screen").style.display = "none";
+  document.getElementById("quiz-screen").classList.add("active");
+  // document.getElementById("quizScreen").style.display = "flex";
+});
+
+//event handler to play the game again
+playAgain.addEventListener("click", () => {
+  document.getElementById("quiz-screen").classList.add("active");
+  document.getElementById("end-screen").classList.remove("active");
+
+  getQuestions();
+  countDown(60);
+  score = 0;
+  updateScore();
 });
